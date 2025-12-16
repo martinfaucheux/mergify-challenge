@@ -1,6 +1,7 @@
 import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 
 from neighbor_finder import NeighborFinder
 
@@ -15,8 +16,15 @@ app = FastAPI(
 neighbor_finder = NeighborFinder()
 
 
+class NeighborResponse(BaseModel):
+    repo: str
+    stargazers: list[str]
+
+
 @app.get("/repos/{github_user}/{github_repo}/starneighbours")
-async def get_star_neighbours(github_user: str, github_repo: str):
+async def get_star_neighbours(
+    github_user: str, github_repo: str
+) -> list[NeighborResponse]:
     """
     Get neighbor repositories that share stargazers with the given repository.
 
