@@ -25,8 +25,27 @@ This endpoint must return the list of neighbours repositories, meaning repositor
 ]
 ```
 
+# 2. API Authentication 🔑
+
+Now that your API endpoint is ready, we'd like to add support for authentication on top of it.
+
+API keys can be generated from a command. This will create a new user in the database and generate an API key for them.
+
+The key should be checked at each request to the `/repos/<user>/<repo>/starneighbours` endpoint. If the key is missing or invalid, a `401 Unauthorized` response should be returned.
+
 # Stack
 
 - uv as python manager
 - fast api as web framework
 - httpx as http client
+
+# Extra details
+
+User model
+
+- id: uuid
+- username: str
+- email: str
+- api_key: str
+- api_key_valid_until: datetime
+- created_at: datetime
