@@ -10,7 +10,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 # Copy project files
 COPY pyproject.toml uv.lock ./
 
-# Install dependencies
+# Install dependencies in container's .venv (excluded from volume mount)
 RUN uv sync --frozen
 
 # Copy application code
