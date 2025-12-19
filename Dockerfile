@@ -15,6 +15,9 @@ RUN uv sync --frozen
 
 # Copy application code
 COPY *.py ./
+COPY api/ ./api/
+COPY config/ ./config/
+COPY services/ ./services/
 
 # Expose FastAPI port
 EXPOSE 8000

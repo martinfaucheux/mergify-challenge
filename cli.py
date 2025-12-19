@@ -4,8 +4,8 @@ from datetime import datetime, timedelta, timezone
 
 import typer
 
-from database import get_session
-from models import User
+from api.models import User
+from config.database import get_session
 
 app = typer.Typer()
 

@@ -4,7 +4,9 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from models import User
+from api.models import User
+
+NEIGHBOR_FINDER_PATH = "services.neighbor_finder.NeighborFinder.find_star_neighbours"
 
 
 class TestStarNeighboursRoute:
@@ -31,10 +33,7 @@ class TestStarNeighboursRoute:
             {"repo": "user2/repo2", "stargazers": ["alice"]},
         ]
 
-        with patch(
-            "main.neighbor_finder.find_star_neighbours",
-            return_value=expected_neighbors,
-        ):
+        with patch(NEIGHBOR_FINDER_PATH, return_value=expected_neighbors):
             # Act
             response = client.get(
                 "/repos/testowner/testrepo/starneighbours",
@@ -59,10 +58,7 @@ class TestStarNeighboursRoute:
         THEN an empty list should be returned with 200 status
         """
         # Arrange
-        with patch(
-            "main.neighbor_finder.find_star_neighbours",
-            return_value=[],
-        ):
+        with patch(NEIGHBOR_FINDER_PATH, return_value=[]):
             # Act
             response = client.get(
                 "/repos/testowner/testrepo/starneighbours",
@@ -135,10 +131,7 @@ class TestStarNeighboursRoute:
             "Not Found", request=MagicMock(), response=mock_response
         )
 
-        with patch(
-            "main.neighbor_finder.find_star_neighbours",
-            side_effect=http_error,
-        ):
+        with patch(NEIGHBOR_FINDER_PATH, side_effect=http_error):
             # Act
             response = client.get(
                 "/repos/nonexistent/repo/starneighbours",
@@ -164,10 +157,7 @@ class TestStarNeighboursRoute:
             "Forbidden", request=MagicMock(), response=mock_response
         )
 
-        with patch(
-            "main.neighbor_finder.find_star_neighbours",
-            side_effect=http_error,
-        ):
+        with patch(NEIGHBOR_FINDER_PATH, side_effect=http_error):
             # Act
             response = client.get(
                 "/repos/testowner/testrepo/starneighbours",
@@ -193,10 +183,7 @@ class TestStarNeighboursRoute:
             "Service Unavailable", request=MagicMock(), response=mock_response
         )
 
-        with patch(
-            "main.neighbor_finder.find_star_neighbours",
-            side_effect=http_error,
-        ):
+        with patch(NEIGHBOR_FINDER_PATH, side_effect=http_error):
             # Act
             response = client.get(
                 "/repos/testowner/testrepo/starneighbours",
@@ -215,10 +202,7 @@ class TestStarNeighboursRoute:
         THEN a 500 Internal Server Error should be returned
         """
         # Arrange
-        with patch(
-            "main.neighbor_finder.find_star_neighbours",
-            side_effect=Exception("Unexpected error"),
-        ):
+        with patch(NEIGHBOR_FINDER_PATH, side_effect=Exception("Unexpected error")):
             # Act
             response = client.get(
                 "/repos/testowner/testrepo/starneighbours",
@@ -243,10 +227,7 @@ class TestStarNeighboursRoute:
             {"repo": "user/repo.with.dots", "stargazers": ["user2"]},
         ]
 
-        with patch(
-            "main.neighbor_finder.find_star_neighbours",
-            return_value=expected_neighbors,
-        ):
+        with patch(NEIGHBOR_FINDER_PATH, return_value=expected_neighbors):
             # Act
             response = client.get(
                 "/repos/test-owner/test.repo/starneighbours",
@@ -272,10 +253,7 @@ class TestStarNeighboursRoute:
             for i in range(100)
         ]
 
-        with patch(
-            "main.neighbor_finder.find_star_neighbours",
-            return_value=expected_neighbors,
-        ):
+        with patch(NEIGHBOR_FINDER_PATH, return_value=expected_neighbors):
             # Act
             response = client.get(
                 "/repos/testowner/testrepo/starneighbours",
@@ -300,10 +278,7 @@ class TestStarNeighboursRoute:
             {"repo": "user1/repo1", "stargazers": ["alice", "bob", "charlie"]},
         ]
 
-        with patch(
-            "main.neighbor_finder.find_star_neighbours",
-            return_value=expected_neighbors,
-        ):
+        with patch(NEIGHBOR_FINDER_PATH, return_value=expected_neighbors):
             # Act
             response = client.get(
                 "/repos/testowner/testrepo/starneighbours",

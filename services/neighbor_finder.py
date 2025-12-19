@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from github_service import GitHubRestService
+from services.github_client import GitHubRestService
 
 
 class NeighborFinder:

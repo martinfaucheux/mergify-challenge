@@ -8,9 +8,9 @@ from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel.pool import StaticPool
 
-from database import get_session
+from api.models import User
+from config.database import get_session
 from main import app
-from models import User
 
 
 @pytest_asyncio.fixture(name="session")

@@ -5,8 +5,8 @@ from fastapi.security import APIKeyHeader
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from database import get_session
-from models import User
+from api.models import User
+from config.database import get_session
 
 # API Key security scheme
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
