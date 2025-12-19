@@ -33,13 +33,24 @@ async def verify_api_key(
         raise HTTPException(status_code=401, detail="API key is missing")
 
     # Query for user with matching API key
-    statement = select(User).where(
-        User.api_key == api_key, User.api_key_valid_until > datetime.now(timezone.utc)
-    )
+    statement = select(User).where(User.api_key == api_key)
     result = await session.exec(statement)
     user = result.one_or_none()
 
     if not user:
         raise HTTPException(status_code=401, detail="Invalid API key")
+
+    # Do the expiration check after confirming user exists
+    # Handle both timezone-aware (PostgreSQL) and timezone-naive (SQLite) datetimes
+    now = datetime.now(timezone.utc)
+    valid_until = user.api_key_valid_until
+
+    # Make comparison work for both timezone-aware and timezone-naive datetimes
+    if valid_until.tzinfo is None:
+        # If stored datetime is naive (e.g., SQLite), compare with naive datetime
+        now = now.replace(tzinfo=None)
+
+    if valid_until < now:
+        raise HTTPException(status_code=401, detail="API key has expired")
 
     return user
