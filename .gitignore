@@ -217,3 +217,6 @@ __marimo__/
 
 # Notebooks
 *.ipynb
+
+# Vscode settings
+.vscode/settings.json
