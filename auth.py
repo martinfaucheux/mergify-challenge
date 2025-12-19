@@ -1,0 +1,45 @@
+from datetime import datetime, timezone
+
+from fastapi import Depends, HTTPException, Security
+from fastapi.security import APIKeyHeader
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from database import get_session
+from models import User
+
+# API Key security scheme
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+
+async def verify_api_key(
+    api_key: str = Security(api_key_header),
+    session: AsyncSession = Depends(get_session),
+) -> User:
+    """
+    Verify the API key and return the associated user.
+
+    Args:
+        api_key: The API key from the X-API-Key header
+        session: Database session
+
+    Returns:
+        User object if authentication succeeds
+
+    Raises:
+        HTTPException: 401 if API key is missing, invalid, or expired
+    """
+    if not api_key:
+        raise HTTPException(status_code=401, detail="API key is missing")
+
+    # Query for user with matching API key
+    statement = select(User).where(
+        User.api_key == api_key, User.api_key_valid_until > datetime.now(timezone.utc)
+    )
+    result = await session.exec(statement)
+    user = result.one_or_none()
+
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+
+    return user

@@ -2,10 +2,12 @@ from contextlib import asynccontextmanager
 
 import httpx
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 
+from auth import verify_api_key
 from database import close_db, init_db
+from models import User
 from neighbor_finder import NeighborFinder
 
 load_dotenv()
@@ -30,6 +32,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# API Key security scheme
 neighbor_finder = NeighborFinder()
 
 
@@ -38,9 +41,15 @@ class NeighborResponse(BaseModel):
     stargazers: list[str]
 
 
-@app.get("/repos/{github_user}/{github_repo}/starneighbours")
+@app.get(
+    "/repos/{github_user}/{github_repo}/starneighbours",
+    summary="Get Star Neighbours",
+    description="Find repositories that share stargazers with the specified repository",
+)
 async def get_star_neighbours(
-    github_user: str, github_repo: str
+    github_user: str,
+    github_repo: str,
+    current_user: User = Depends(verify_api_key),
 ) -> list[NeighborResponse]:
     """
     Get neighbor repositories that share stargazers with the given repository.
