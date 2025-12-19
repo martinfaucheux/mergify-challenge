@@ -20,33 +20,27 @@ class NeighborFinder:
         Returns:
             List of neighbor repositories with their common stargazers
         """
-        # Step 1: Get all stargazers of the target repository
-        stargazers = await self.github_service.get_stargazers(owner, repo)
+        # Fetch all stargazers and their starred repos in batched GraphQL queries
+        stargazer_repos = await self.github_service.get_stargazers_with_starred_repos(
+            owner, repo
+        )
 
-        # Step 2: For each stargazer, fetch their starred repositories
-        # Using a dict to track: repo_full_name -> set of common stargazers
+        # Track repo_full_name -> set of common stargazers
         neighbor_repos = defaultdict(set)
+        target_repo = f"{owner}/{repo}".lower()
 
-        for stargazer in stargazers:
-            try:
-                starred_repos = await self.github_service.get_starred_repos(stargazer)
+        # Process all stargazers and their starred repos
+        for stargazer, starred_repos in stargazer_repos.items():
+            for repo_full_name in starred_repos:
+                # Skip the original repository
+                if repo_full_name.lower() != target_repo:
+                    neighbor_repos[repo_full_name].add(stargazer)
 
-                for starred_repo in starred_repos:
-                    repo_full_name = starred_repo["full_name"]
-                    # Skip the original repository
-                    if repo_full_name.lower() != f"{owner}/{repo}".lower():
-                        neighbor_repos[repo_full_name].add(stargazer)
-            except Exception as e:
-                # Continue with other stargazers if one fails
-                print(f"Error fetching starred repos for {stargazer}: {e}")
-                continue
-
-        # Step 3: Format the results
-        results = []
-        for repo_name, stargazer_set in neighbor_repos.items():
-            results.append(
-                {"repo": repo_name, "stargazers": sorted(list(stargazer_set))}
-            )
+        # Format the results
+        results = [
+            {"repo": repo_name, "stargazers": sorted(list(stargazer_set))}
+            for repo_name, stargazer_set in neighbor_repos.items()
+        ]
 
         # Sort by number of common stargazers (descending)
         results.sort(key=lambda x: len(x["stargazers"]), reverse=True)
