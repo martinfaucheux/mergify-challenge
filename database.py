@@ -5,6 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+# Import models so SQLModel.metadata knows about them
+from models import User  # noqa: F401
+
 
 def get_database_url() -> str:
     """
