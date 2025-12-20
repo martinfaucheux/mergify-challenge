@@ -10,7 +10,13 @@ from config.database import get_session
 app = typer.Typer()
 
 
-@app.command()
+@app.callback()
+def callback():
+    # allow to keep a single command
+    pass
+
+
+@app.command("create_api_key")
 def create_api_key(
     username: str,
     email: str,
