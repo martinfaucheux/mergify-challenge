@@ -220,3 +220,6 @@ __marimo__/
 
 # Vscode settings
 .vscode/settings.json
+
+# sql queries
+*.sql
