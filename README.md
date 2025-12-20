@@ -41,6 +41,8 @@ the example uses this repo for test: [alamorre/django_ec2_complete](https://gith
 
 # Run it locally
 
+## Setup
+
 Clone this repository:
 
 ```bash
@@ -69,6 +71,14 @@ To genereate an API key for testing, you can use the following python snippet:
 
 ```bash
 docker compose exec api uv run python cli.py create_api_key username user@mail.com
+```
+
+## Testing
+
+To run the tests, execute the following command:
+
+```bash
+docker compose exec api uv run pytest
 ```
 
 # Deployed environment
