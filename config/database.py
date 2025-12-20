@@ -12,7 +12,24 @@ from api.models import User  # noqa: F401
 def get_database_url() -> str:
     """
     Construct the database URL from environment variables.
+    Supports both DATABASE_URL (Render) and individual POSTGRES_* variables (local).
     """
+    # Check for Render's DATABASE_URL first
+    database_url = os.getenv("DATABASE_URL")
+
+    if database_url:
+        # Render provides postgresql:// but we need postgresql+asyncpg://
+        if database_url.startswith("postgresql://"):
+            database_url = database_url.replace(
+                "postgresql://", "postgresql+asyncpg://", 1
+            )
+        elif database_url.startswith("postgres://"):
+            database_url = database_url.replace(
+                "postgres://", "postgresql+asyncpg://", 1
+            )
+        return database_url
+
+    # Fallback to individual environment variables for local development
     host = os.getenv("POSTGRES_HOST", "localhost")
     port = os.getenv("POSTGRES_PORT", "5432")
     db = os.getenv("POSTGRES_DB", "stargazer")
@@ -33,10 +50,19 @@ def get_engine() -> AsyncEngine:
     global engine
     if engine is None:
         database_url = get_database_url()
+
+        # Configure SSL for production (Render requires SSL)
+        connect_args = {}
+        if os.getenv("DATABASE_URL"):  # Production environment (Render)
+            connect_args = {
+                "ssl": "require",  # Require SSL connection
+            }
+
         engine = create_async_engine(
             database_url,
             echo=True,  # Set to False in production
             future=True,
+            connect_args=connect_args,
         )
     return engine
 
